@@ -5,6 +5,7 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import Image from "next/image";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 interface Product {
   id: number;
@@ -29,6 +30,8 @@ const products: Product[] = [
 ];
 
 const OnSale = () => {
+  const { addToCart } = useCart();
+
   return (
     <section className="py-10 px-6 bg-gray-50 text-center">
       <h2 className="text-black text-3xl font-bold mb-8">On Sale</h2>
@@ -80,7 +83,18 @@ const OnSale = () => {
                 </span>
               </div>
 
-              <button className="mt-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-full transition-all shadow-md">
+              <button
+                onClick={() =>
+                  addToCart({
+                    id: product.id.toString(),
+                    title: product.title,
+                    price: product.price,
+                    image: product.image,
+                    qty: 1,
+                  })
+                }
+                className="mt-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-full transition-all shadow-md"
+              >
                 Add to Cart
               </button>
             </div>

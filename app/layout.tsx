@@ -1,8 +1,7 @@
-import Footer from './components/Footer';
-import Navbar from './components/Navbar';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import ConditionalLayout from './components/ConditionalLayout';
+import { CartProvider } from '@/context/CartContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,9 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ConditionalLayout>
-          {children}
-        </ConditionalLayout>
+        <CartProvider>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </CartProvider>
       </body>
     </html>
   );

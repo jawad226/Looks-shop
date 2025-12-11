@@ -337,6 +337,7 @@ import "swiper/css";
 import Image from "next/image";
 import { Heart, Eye, ShoppingCart } from "lucide-react";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
 
 interface Product {
   id: number;
@@ -364,6 +365,7 @@ const products: Product[] = [
 const BestSellers = () => {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [modalProduct, setModalProduct] = useState<Product | null>(null);
+  const { addToCart } = useCart();
 
   const toggleWishlist = (productId: number) => {
     setWishlist(prev => 
@@ -474,7 +476,18 @@ const BestSellers = () => {
                           ${product.price}
                         </span>
                       </div>
-                      <button className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-4 py-3 rounded-xl transition-all shadow-lg hover:scale-105">
+                      <button
+                        onClick={() =>
+                          addToCart({
+                            id: product.id.toString(),
+                            title: product.title,
+                            price: product.price,
+                            image: product.image,
+                            qty: 1,
+                          })
+                        }
+                        className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-4 py-3 rounded-xl transition-all shadow-lg hover:scale-105"
+                      >
                         <ShoppingCart size={18} />
                         <span className="hidden sm:inline">Add</span>
                       </button>

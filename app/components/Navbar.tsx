@@ -60,9 +60,11 @@
 import { Search, Heart, ShoppingCart, User, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { cart, toggleCart } = useCart();
 
   const categories = [
     { name: "Earbuds", slug: "Earbuds" },
@@ -103,9 +105,19 @@ const Header = () => {
 
           </div>
           <Heart className="w-5 h-5 cursor-pointer hover:text-black transition" />
-          <Link href="/Cart">
+          <button
+            type="button"
+            onClick={toggleCart}
+            className="relative"
+            aria-label="Open cart"
+          >
             <ShoppingCart className="w-5 h-5 cursor-pointer hover:text-black transition" />
-          </Link>
+            {cart.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-[10px] leading-none px-1.5 py-1 rounded-full">
+                {cart.length}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 

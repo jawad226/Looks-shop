@@ -5,8 +5,17 @@ import Sidebar from '../../components/dashboard/Sidebar';
 import { DashboardProvider, useDashboard } from '../../../context/DashboardContext';
 
 function CustomersContent() {
-  const { customersData, updateCustomer, deleteCustomer } = useDashboard();
+  const { customersData, addCustomer, updateCustomer, deleteCustomer } = useDashboard();
   const [searchTerm, setSearchTerm] = useState('');
+  const [newCustomer, setNewCustomer] = useState({
+    name: '',
+    email: '',
+    orders: 0,
+    totalSpent: '',
+    joinDate: '',
+    status: 'Active' as 'Active' | 'Inactive',
+  });
+  const [error, setError] = useState<string | null>(null);
 
   const filteredCustomers = customersData.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -23,6 +32,28 @@ function CustomersContent() {
     }
   };
 
+  const handleAddCustomer = () => {
+    if (!newCustomer.name.trim() || !newCustomer.email.trim()) {
+      setError('Name and email are required');
+      return;
+    }
+
+    addCustomer({
+      id: `c-${Date.now()}`,
+      ...newCustomer,
+    });
+
+    setNewCustomer({
+      name: '',
+      email: '',
+      orders: 0,
+      totalSpent: '',
+      joinDate: '',
+      status: 'Active',
+    });
+    setError(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-900 to-slate-800 text-white flex">
       <Sidebar />
@@ -33,15 +64,73 @@ function CustomersContent() {
           <p className="text-sm opacity-70">Manage your customer database</p>
         </div>
 
-        {/* Search */}
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Search customers by name or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-md bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
-          />
+        {/* Search & Add */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <div className="lg:col-span-2">
+            <input
+              type="text"
+              placeholder="Search customers by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="text"
+                placeholder="Name"
+                value={newCustomer.name}
+                onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+                className="bg-white/5 border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500"
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={newCustomer.email}
+                onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                className="bg-white/5 border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500"
+              />
+              <input
+                type="number"
+                min={0}
+                placeholder="Orders"
+                value={newCustomer.orders}
+                onChange={(e) => setNewCustomer({ ...newCustomer, orders: Number(e.target.value) })}
+                className="bg-white/5 border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Total Spent (e.g. Rs 5,000)"
+                value={newCustomer.totalSpent}
+                onChange={(e) => setNewCustomer({ ...newCustomer, totalSpent: e.target.value })}
+                className="bg-white/5 border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500"
+              />
+              <input
+                type="date"
+                placeholder="Join Date"
+                value={newCustomer.joinDate}
+                onChange={(e) => setNewCustomer({ ...newCustomer, joinDate: e.target.value })}
+                className="bg-white/5 border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500"
+              />
+              <select
+                value={newCustomer.status}
+                onChange={(e) => setNewCustomer({ ...newCustomer, status: e.target.value as 'Active' | 'Inactive' })}
+                className="bg-white/5 border border-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:border-blue-500"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            {error && <p className="text-xs text-red-400">{error}</p>}
+            <button
+              onClick={handleAddCustomer}
+              className="w-full bg-blue-500/80 hover:bg-blue-500 text-white rounded px-3 py-2 text-sm font-semibold transition-colors"
+            >
+              Add Customer
+            </button>
+          </div>
         </div>
 
         {/* Customers Grid */}
