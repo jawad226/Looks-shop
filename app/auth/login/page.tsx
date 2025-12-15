@@ -96,6 +96,7 @@ import { MdHome } from "react-icons/md";
 import Register from "../register/page";
 import ForgetPassword from "../forgetpassword/page";
 import ResetPassword from "../restpassword/page";
+import Link from "next/link";
 
 
 interface LoginProps {}
@@ -144,12 +145,21 @@ const Login: FC<LoginProps> = () => {
             className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
           />
 
+          
           <button
             type="submit"
             className="bg-blue-800 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-blue-900 transition"
           >
             Log In
           </button>
+          <Link href="/dashboard">
+            <button
+              type="button"
+              className="bg-green-600 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-green-700 transition w-full"
+            >
+              Demo Login
+            </button>
+          </Link>
 
           {/* Terms & Forget */}
           <div className="flex justify-between items-center text-sm text-gray-500">
