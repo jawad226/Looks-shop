@@ -68,7 +68,7 @@ export default function Sidebar() {
         <div className="mb-4">
           <p className="text-xs uppercase opacity-50 px-3 py-2">Store</p>
           <Link 
-            href="/shop-all" 
+            href="/Shop-all" 
             className={`block px-3 py-2 rounded transition-colors ${
               isActive('/shop-all') ? 'bg-white/20 font-semibold' : 'hover:bg-white/10'
             }`}

@@ -47,7 +47,7 @@ import Link from "next/link";
 export default function Hero() {
   return (
     <section
-      className="relative h-[70vh] sm:h-[75vh] md:h-[83vh] flex items-center bg-center bg-cover bg-no-repeat"
+      className="relative h-[80vh] sm:h-[75vh] md:h-[85vh] flex items-center bg-center bg-cover bg-no-repeat"
       style={{
         backgroundImage: "url('/hdp.jpg')",
       }}

@@ -1,13 +1,60 @@
 "use client";
-
-import React, { FC } from "react";
+import React, { useState } from "react";
 import { MdHome } from "react-icons/md";
+import Link from "next/link";
 
-interface RegisterProps {
-  handleLogin: () => void;
-}
+const RegisterPage = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const Register: FC<RegisterProps> = ({ handleLogin }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!name || !email || !phone || !password || !confirmPassword) {
+      setError("All fields are required");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:4000/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) setError(data.message || "Registration failed.");
+      else {
+        setSuccess("Account created successfully!");
+        setName("");
+        setEmail("");
+        setPhone("");
+        setPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="p-8 w-full max-w-md bg-white rounded-3xl shadow-xl">
@@ -21,56 +68,32 @@ const Register: FC<RegisterProps> = ({ handleLogin }) => {
           </span>
         </div>
 
-        {/* Heading */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-1">Create Account</h1>
-          <p className="text-gray-500 text-sm">Sign up to get started</p>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-1 text-center">Create Account</h1>
 
-        {/* Form */}
-        <form className="flex flex-col space-y-4">
-          <input
-            type="email"
-            placeholder="Email Address"
-            className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
-          />
-          <input
-            type="tel"
-            placeholder="Phone Number"
-            className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
-          />
+        <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {success && <p className="text-green-500 text-sm">{success}</p>}
 
-          <button
-            type="submit"
-            className="bg-blue-800 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-blue-900 transition"
-          >
-            Register
+          <input type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} className="border p-3 rounded-xl" />
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="border p-3 rounded-xl" />
+          <input type="tel" placeholder="Phone" value={phone} onChange={e => setPhone(e.target.value)} className="border p-3 rounded-xl" />
+          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="border p-3 rounded-xl" />
+          <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="border p-3 rounded-xl" />
+
+          <button type="submit" disabled={loading} className="bg-blue-800 text-white py-3 rounded-xl font-semibold disabled:opacity-50">
+            {loading ? "Registering..." : "Register"}
           </button>
 
-          {/* Login link */}
-          <div className="text-center text-gray-500 text-sm">
+          <p className="text-center text-sm text-gray-500 mt-4">
             Already have an account?{" "}
-            <span
-              className="text-blue-800 font-medium cursor-pointer hover:underline"
-              onClick={handleLogin}
-            >
+            <Link href="/auth/login" className="text-blue-800 font-medium hover:underline">
               Login
-            </span>
-          </div>
+            </Link>
+          </p>
         </form>
       </div>
     </div>
   );
 };
 
-export default Register;
+export default RegisterPage;

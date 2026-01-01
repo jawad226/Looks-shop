@@ -1,26 +1,31 @@
-import './globals.css';
-import { Inter } from 'next/font/google';
-import ConditionalLayout from './components/ConditionalLayout';
-import { CartProvider } from '@/context/CartContext';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { CartProvider } from "@/context/CartContext";
+import ConditionalLayout from "./components/ConditionalLayout";
 
-const inter = Inter({ subsets: ['latin'] });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-export const metadata = {
-  title: { 
-    template: '%s | ElectroMart',
-    default: 'ElectroMart',
-  },
-  description: 'Your one-stop shop for all electronics',
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Looks Shop",
+  description: "Modern authentication system",
 };
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+     <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <CartProvider>
           <ConditionalLayout>
             {children}

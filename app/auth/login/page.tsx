@@ -1,117 +1,39 @@
-// "use client";
-
-// import React, { FC } from "react";
-// import { MdHome } from "react-icons/md";
-
-// interface LoginProps {
-//   showNewPassword?: boolean;
-//   handleRegister: () => void;
-//   handleLogin: () => void;
-// }
-
-// const Login: FC<LoginProps> = ({
-//   showNewPassword = false,
-//   handleRegister,
-//   handleLogin,
-// }) => {
-//   if (showNewPassword) {
-//     return <showNewPassword />;
-//   }
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-//       <div className="p-8 w-full max-w-md bg-white rounded-3xl shadow-xl">
-//         {/* Logo */}
-//         <div className="flex items-center justify-start mb-8 relative">
-//           <span className="border-2 border-gray-700 p-3 bg-gray-200 rounded-full text-3xl text-gray-800">
-//             <MdHome />
-//           </span>
-//           <span className="absolute left-1/9 font-bold bg-gray-900 px-6 py-2 rounded-full text-white">
-//             Looks Shop
-//           </span>
-//         </div>
-
-//         {/* Heading */}
-//         <div className="text-center mb-6">
-//           <h1 className="text-3xl font-bold text-gray-800 mb-1">
-//             Welcome Back
-//           </h1>
-//           <p className="text-gray-500 text-sm">
-//             Log in to continue shopping
-//           </p>
-//         </div>
-
-//         {/* Form */}
-//         <form className="flex flex-col space-y-4">
-//           <input
-//             type="email"
-//             placeholder="Email Address"
-//             className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
-//           />
-//           <input
-//             type="password"
-//             placeholder="Password"
-//             className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
-//           />
-
-//           <button
-//             type="submit"
-//             className="bg-blue-800 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-blue-900 transition"
-//           >
-//             Log In
-//           </button>
-
-//           {/* Terms & Forget */}
-//           <div className="flex justify-between items-center text-sm text-gray-500">
-//             <label className="flex items-center space-x-2">
-//               <input type="checkbox" className="accent-red-500" />
-//               <span>Remember me</span>
-//             </label>
-//             <span className="text-blue-800 cursor-pointer hover:underline">
-//               Forget Password?
-//             </span>
-//           </div>
-
-//           {/* Register link */}
-//           <div className="text-center text-gray-500 text-sm">
-//             Don't have an account?{" "}
-//             <span
-//               className="text-blue-800 font-medium cursor-pointer hover:underline"
-//               onClick={handleRegister}
-//             >
-//               Register
-//             </span>
-//           </div>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Login;
-
 "use client";
-import React, { FC, useState } from "react";
+import React, { useState } from "react";
 import { MdHome } from "react-icons/md";
-import Register from "../register/page";
-import ForgetPassword from "../forgetpassword/page";
-import ResetPassword from "../restpassword/page";
 import Link from "next/link";
 
+const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-interface LoginProps {}
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-const Login: FC<LoginProps> = () => {
-  const [activeForm, setActiveForm] = useState<"login" | "register" | "forget" | "reset">("login");
+    try {
+      const res = await fetch("http://localhost:4000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
 
-  const handleRegister = () => setActiveForm("register");
-  const handleLogin = () => setActiveForm("login");
-  const handleForget = () => setActiveForm("forget");
-  const handleReset = () => setActiveForm("reset");
-
-  if (activeForm === "register") return <Register handleLogin={handleLogin} />;
-  if (activeForm === "forget") return <ForgetPassword handleLogin={handleLogin} handleReset={handleReset} />;
-  if (activeForm === "reset") return <ResetPassword handleLogin={handleLogin} />;
+      if (!res.ok) setError(data.message || "Login failed.");
+      else {
+        document.cookie = `token=${data.token}; path=/; max-age=${60 * 60 * 24}`;
+        window.location.href = "/dashboard";
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -126,63 +48,56 @@ const Login: FC<LoginProps> = () => {
           </span>
         </div>
 
-        {/* Heading */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-1">Welcome Back</h1>
-          <p className="text-gray-500 text-sm">Log in to continue shopping</p>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-1 text-center">Welcome Back</h1>
+        <p className="text-gray-500 text-sm text-center mb-6">Log in to continue shopping</p>
 
-        {/* Form */}
-        <form className="flex flex-col space-y-4">
+        <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder="Email Address"
-            className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            className="border p-3 rounded-xl"
+            required
           />
           <input
             type="password"
             placeholder="Password"
-            className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="border p-3 rounded-xl"
+            required
           />
 
-          
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <button
             type="submit"
-            className="bg-blue-800 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-blue-900 transition"
+            disabled={loading}
+            className="bg-blue-800 text-white py-3 rounded-xl font-semibold disabled:opacity-50"
           >
-            Log In
+            {loading ? "Logging in..." : "Log In"}
           </button>
-          <Link href="/dashboard">
-            <button
-              type="button"
-              className="bg-green-600 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-green-700 transition w-full"
-            >
-              Demo Login
-            </button>
-          </Link>
 
-          {/* Terms & Forget */}
-          <div className="flex justify-between items-center text-sm text-gray-500">
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" className="accent-red-500" />
-              <span>Remember me</span>
+          <div className="flex justify-between text-sm text-gray-500 mt-2">
+            <label>
+              <input type="checkbox" className="accent-red-500" /> Remember me
             </label>
-            <span className="text-blue-800 cursor-pointer hover:underline" onClick={handleForget}>
+            <Link href="/auth/forgetpassword" className="text-blue-800 hover:underline">
               Forget Password?
-            </span>
+            </Link>
           </div>
 
-          {/* Register link */}
-          <div className="text-center text-gray-500 text-sm">
+          <p className="text-center text-sm text-gray-500 mt-4">
             Don't have an account?{" "}
-            <span className="text-blue-800 font-medium cursor-pointer hover:underline" onClick={handleRegister}>
+            <Link href="/auth/register" className="text-blue-800 font-medium hover:underline">
               Register
-            </span>
-          </div>
+            </Link>
+          </p>
         </form>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;

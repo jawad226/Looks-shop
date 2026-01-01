@@ -1,17 +1,51 @@
 "use client";
-
-import React, { FC } from "react";
+import React, { useState } from "react";
 import { MdHome } from "react-icons/md";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
-interface ResetPasswordProps {
-  handleLogin: () => void;
-}
+const ResetPasswordPage = () => {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token"); // token from URL
 
-const ResetPassword: FC<ResetPasswordProps> = ({ handleLogin }) => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validations
+    if (!password || !confirmPassword) return alert("All fields are required");
+    if (password !== confirmPassword) return alert("Passwords do not match");
+    if (!token) return alert("Invalid or expired reset token");
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:4000/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword: password }), // Match backend
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) return alert(data.message || "Failed to reset password");
+
+      alert("Password reset successful. Please login.");
+      setPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="p-8 w-full max-w-md bg-white rounded-3xl shadow-xl">
-        {/* Logo */}
         <div className="flex items-center justify-start mb-8 relative">
           <span className="border-2 border-gray-700 p-3 bg-gray-200 rounded-full text-3xl text-gray-800">
             <MdHome />
@@ -21,48 +55,50 @@ const ResetPassword: FC<ResetPasswordProps> = ({ handleLogin }) => {
           </span>
         </div>
 
-        {/* Heading */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-1">Reset Password</h1>
-          <p className="text-gray-500 text-sm">
-            Enter your new password to continue
-          </p>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-1 text-center">
+          Reset Password
+        </h1>
+        <p className="text-gray-500 text-sm text-center mb-6">
+          Enter your new password
+        </p>
 
-        {/* Form */}
-        <form className="flex flex-col space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <input
             type="password"
             placeholder="New Password"
-            className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border p-3 rounded-xl"
           />
           <input
             type="password"
             placeholder="Confirm New Password"
-            className="border border-gray-300 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="border p-3 rounded-xl"
           />
 
           <button
             type="submit"
-            className="bg-blue-800 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-blue-900 transition"
+            disabled={loading}
+            className="bg-blue-800 text-white py-3 rounded-xl font-semibold disabled:opacity-50"
           >
-            Reset Password
+            {loading ? "Resetting..." : "Reset Password"}
           </button>
 
-          {/* Login link */}
-          <div className="text-center text-gray-500 text-sm">
+          <p className="text-center text-sm text-gray-500 mt-4">
             Remembered your password?{" "}
-            <span
-              className="text-blue-800 font-medium cursor-pointer hover:underline"
-              onClick={handleLogin}
+            <Link
+              href="/auth/login"
+              className="text-blue-800 font-medium hover:underline"
             >
               Login
-            </span>
-          </div>
+            </Link>
+          </p>
         </form>
       </div>
     </div>
   );
 };
 
-export default ResetPassword;
+export default ResetPasswordPage;
